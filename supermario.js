@@ -389,17 +389,17 @@ function start(){
 }
 
 function audioHit(){
-    audio.src = "animation/waluigi.mp3";
+    audio.src = "effects/waluigi.mp3";
     audio.play();
 }
 
 function audioDead(){
-    audio.src = "animation/mariodead.mp3";
+    audio.src = "effects/mariodead.mp3";
     audio.play();
 }
 
 function audioWario(){
-    audio.src = "animation/wario.mp3";
+    audio.src = "effects/wario.mp3";
     audio.play();
 }
 

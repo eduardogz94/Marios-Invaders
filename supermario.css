@@ -1,5 +1,5 @@
 		body {
-   			background: url("fondo.jpg");
+   			background: url("images/fondo.jpg");
     		background-size: 1366px 768px;
     		background-repeat: no-repeat;; 
 		}
@@ -10,7 +10,7 @@
 		}
 		#modal {
 			color:white;
-			background-image: url("coin.png");
+			background-image: url("images/coin.png");
 			text-align: center;
 			position: absolute;
 			top: 10%;
@@ -63,7 +63,7 @@
 		}
 
 		canvas {
-			background-image: url('canvas.jpg');
+			background-image: url('images/canvas.jpg');
 			background-color: #F8F8FF;
 			position: relative;
 			top: 10%;

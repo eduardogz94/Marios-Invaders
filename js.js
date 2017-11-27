@@ -383,7 +383,7 @@ function choque(){
             
             if(jugador.pv.punto == 0){
                 var music = document.getElementById("musica");
-                music.
+
                 asd = true;
                 }
         }
@@ -412,6 +412,7 @@ function moverTanque(event){
     }
     if(tecla == 32){
         jugador.disparo(); 
+        audio();
     }
 }
 
@@ -471,6 +472,12 @@ function iniciar(){
         wario[i] = new Wario();
     }
     frame(); 
+}
+
+function audio(){
+var audio = new Audio();
+audio.src = "mariocoin.mp3";
+audio.play();
 }
 
 var imageRepository = new function() {

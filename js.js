@@ -12,6 +12,7 @@ var alturaAvion = 5;
 var velocidadAvion = 5;
 var probTiro = 0.01;
 var canvas = document.getElementById("canvas");
+var music = document.getElementById("musica");
 var ctx = canvas.getContext("2d");
 var puntos = 0;
 var superficie = canvas.height - alturaTanque;
@@ -60,7 +61,7 @@ class Waluigi {
         this.bom = true;
         this.life = true;
         this.bomba = new enemyT();
-        this.x = 0 - largoAvion * Math.random() * 3000;
+        this.x = 0 - largoAvion * Math.random() * 1000;
         this.w = 30;
         this.h = 30;
         //this.y = Math.random() * 100 + 50;
@@ -119,7 +120,9 @@ class Waluigi {
     }
 
     dead(){
+    ctx.save();
     ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h); 
+    ctx.restore();
     audioHit();  
     }
 }
@@ -129,7 +132,7 @@ class Wario {
         this.bom = true;
         this.life = true;
         this.bomba = new enemyB();
-        this.x = 0 - largoAvion * Math.random() * 3000;
+        this.x = 0 - largoAvion * Math.random() * 1000;
         this.w = 30;
         this.h = 30;
         //this.y = Math.random() * 100 + 50;
@@ -189,8 +192,10 @@ class Wario {
     }
 
     dead(){
-    audioWario();
-    ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h);   
+        audioWario();
+        ctx.save;
+        ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h);   
+        ctx.restore();
     }
 }
 
@@ -391,8 +396,9 @@ function choque(){
             }
             
             if(jugador.pv.punto == 0){
-                audioDead();
                 asd = true;
+                audioDead();
+                musica.pause();
                 }
         }
     }
@@ -466,6 +472,7 @@ function pausar(){
 function continuar(){ 
     asd = false; 
 }
+
 function reiniciar(){
     location.reload();
     iniciar();

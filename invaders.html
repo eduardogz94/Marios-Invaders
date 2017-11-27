@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Marios Invaders</title>
+		<link rel="stylesheet" type="text/css" href="supermario.css">
+		<link rel="shortcut icon" href="images/favicon.ico" />
+
+    </head>
+	<body onkeydown="movePipe(event)" onkeyup="stopPipe(event)">
+		<audio id="musica" src="animation/mario.mp3" autoplay loop></audio>
+		<center><img src="images/logo.png" alt="Marios Invaders" width="350" height="130"></center>
+		
+		<div id="contenedor">
+			
+			<canvas width="900" height="400" id="canvas"></canvas>
+			
+			<div id="modal">
+				<button id="boton" onclick="start();">
+					Start
+				</button>
+			</div>
+            
+            <button id="boton1" onclick="pause();">
+				<img width="30" height="30" src="images/pause.png" />
+            </button>
+           
+            <button id="boton2" onclick="play();">
+				<img width="30" height="30" src="images/plat.png" />
+            </button>
+           
+            <button id="boton3" onclick="restart();">
+            	<img width="30" height="30" src="images/restart.png" />
+            </button>	
+
+		</div>
+		<script src="supermario.js"></script>
+	</body>
+</html>

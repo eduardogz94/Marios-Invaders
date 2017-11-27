@@ -22,7 +22,7 @@ var audio = new Audio();
 
 //base classes
 class Base {
-    choque(obj){
+    colision(obj){
         if(this.fondo < obj.y || this.y > obj.fondo || this.derecha < obj.x || this.x > obj.derecha){ 
             return false; 
         }
@@ -37,21 +37,21 @@ class Points {
     constructor(x){ 
         this.x = x; 
         this.y = 25; 
-        this.punto = 0; 
+        this.point = 0; 
     }
     
     draw(){ 
         ctx.font = "25px Arial"; 
-        ctx.fillText(this.punto.toString(), this.x, this.y); 
+        ctx.fillText(this.point.toString(), this.x, this.y); 
     }
 }
 
 //sprites clases
 class Invaders {
     constructor(x){
-        this.bom = true;
+        this.shellReady = true;
         this.life = true;
-        this.bomba = new Green();
+        this.shell = new Shell();
         this.x = 0 - invadersHeight * Math.random() * 1000;
         this.w = 30;
         this.h = 30;
@@ -71,59 +71,69 @@ class Invaders {
             Lives--;
         }
         
-        this.bombardeo();
-        this.bomba.move();
+        this.shellDraw();
+        this.shell.move();
     }
     
-    bombardeo(){
-        if(this.x < canvas.width && this.x > 0 && Math.random() < shellChance && this.bom){
-            this.bomba.x = this.x;
-            this.bomba.y = this.y;
-            this.bomba.ydir = shellSpeed;
+    shellDraw(){
+        if(this.x < canvas.width && this.x > 0 && Math.random() < shellChance && this.shellReady){
+            this.shell.x = this.x;
+            this.shell.y = this.y;
+            this.shell.ydir = shellSpeed;
             if (Math.random() < 0.3){
-                this.bomba.xdir = Math.random() * 5;    
+                this.shell.xdir = Math.random() * 5;    
             }
             
             else if (Math.random() < 0.6){
-                this.bomba.xdir = 0;
+                this.shell.xdir = 0;
             }
             
             else if (Math.random() < 0.9){
-                this.bomba.xdir = Math.random() * (-5);    
+                this.shell.xdir = Math.random() * (-5);    
             }
             
-            this.bom = false;
+            this.shellReady = false;
         }
     }
     
     restart(){
         this.x = 0 - invadersHeight * Math.random() * 100;
-        this.bom = true;
+        this.shellReady = true;
     }
 }
 
 class Waluigi extends Invaders {
+    constructor(){
+        super();
+        this.shell = new Red();
+    }
+
     draw(){ 
         ctx.save();
         ctx.drawImage(imageRepository.waluigi, this.x , this.y, this.w, this.h);
         ctx.restore();
-        this.bomba.draw();
+        this.shell.draw();
     }
 
     dead(){
+        audioHit();
         ctx.save();
         ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h); 
-        ctx.restore();
-        audioHit();  
+        ctx.restore();  
     }
 
 }
 class Wario extends Invaders {
+    constructor(){
+        super();
+        this.shell = new Green();
+    }
+
     draw(){ 
         ctx.save();
         ctx.drawImage(imageRepository.wario, this.x , this.y, this.w, this.h);
         ctx.restore();
-        this.bomba.draw();
+        this.shell.draw();
     }
     
     dead(){
@@ -161,19 +171,19 @@ class Shell extends Base {
 
 class Red extends Shell {
     draw(){ 
-        ctx.drawImage(imageRepository.red,this.x - 10, this.y - 20, 20, 30);
+        ctx.drawImage(imageRepository.red,this.x , this.y , 19, 24);
      }
 }
 
 class Green extends Shell {
     draw(){ 
-        ctx.drawImage(imageRepository.green,this.x - 10, this.y - 20, 20, 30);
+        ctx.drawImage(imageRepository.green,this.x, this.y, 12, 22);
      }
 }
 
 class Blue extends Shell {
     draw(){ 
-        ctx.drawImage(imageRepository.blue,this.x - 10, this.y - 20, 20, 30);
+        ctx.drawImage(imageRepository.blue,this.x - 2, this.y - 32, 15, 25);
       }
 }
 //pipe class
@@ -187,7 +197,7 @@ class Cannon {
     
     draw(){         
         ctx.save();
-        ctx.drawImage(imageRepository.pipe,this.x , surface - 50, 50,60);
+        ctx.drawImage(imageRepository.pipe,this.x - 10, surface - 20, 30,30);
         ctx.restore();
  }
 
@@ -202,33 +212,33 @@ class Player extends Base {
     constructor(){
         super();
         this.j = 0;
-        this.tiro = [];
+        this.shot = [];
         this.dir = 0; 
         this.p = new Points(25); 
         this.pv = new Points(canvas.width - 75);
-        this.pv.punto = Lives;
+        this.pv.point = Lives;
         this.c = new Cannon(450,360);
         for(var i=0;i<100;i++){
-            this.tiro[i] = new Blue();
+            this.shot[i] = new Blue();
         }
     }
     
-    disparo(){
+    pipeShell(){
         if(this.j == 100){
             this.j = 0;   
         }
            
-        this.tiro[this.j].x = this.c.x;
-        this.tiro[this.j].y = this.c.y;
-        this.tiro[this.j].ydir = blueSpeedy;
-        this.tiro[this.j].xdir = blueSpeedx;
+        this.shot[this.j].x = this.c.x;
+        this.shot[this.j].y = this.c.y;
+        this.shot[this.j].ydir = blueSpeedy;
+        this.shot[this.j].xdir = blueSpeedx;
         this.j++;
     }
     
     move(){
         this.c.mover(this.dir);
         for(var i=0;i<100;i++){
-            this.tiro[i].move();
+            this.shot[i].move();
         }
         
         if(this.c.x <= 0){
@@ -245,88 +255,92 @@ class Player extends Base {
         this.pv.draw();
         this.c.draw();
         for(var i=0;i<100;i++){
-            this.tiro[i].draw();
+            this.shot[i].draw();
         }
     }
 
 }
 
-var jugador = new Player();
+var supermario = new Player();
 var waluigi = [];
 var wario = [];
 
 //funciones de evento/movimientos
-function choque(){
+function colision(){
     for(var i=0;i<100;i++){
         for(var j=0;j<100;j++){
-            if(jugador.tiro[i].choque(waluigi[j])){
+            if(supermario.shot[i].colision(waluigi[j])){
                 waluigi[j].dead();
                 waluigi[j].restart();
-                jugador.tiro[i].restart();
+                supermario.shot[i].restart();
                 points++;
-                jugador.p.punto = points;
+                supermario.p.point = points;
             }
 
-            if(jugador.tiro[i].choque(wario[j])){
+            if(supermario.shot[i].colision(wario[j])){
                 wario[j].dead();
                 wario[j].restart();
-                jugador.tiro[i].restart();
+                supermario.shot[i].restart();
                 points++;
-                jugador.p.punto = points;
+                supermario.p.point = points;
             }
             
-            if(waluigi[i].bomba.choque(jugador.c) || wario[i].bomba.choque(jugador.c) ){
+            if(waluigi[i].shell.colision(supermario.c) || wario[i].shell.colision(supermario.c) ){
                 Lives--;
-                waluigi[i].bomba.restart();
-                wario[i].bomba.restart();
+                waluigi[i].shell.restart();
+                wario[i].shell.restart();
             }
             
-            if(jugador.pv.punto == 0){
+            if(supermario.pv.point == 0){
                 game = true;
                 audioDead();
                 musica.pause();
                 }
+
+            if(supermario.pv.point == 150){
+
+            }
         }
     }
 }
 
 
-function moverTanque(event){
-    var tecla = event.keyCode;
-    if(tecla == 38){ 
-        blueSpeedx += 0.2; 
-        jugador.tiro[jugador.j].xdir = blueSpeedx;
+function movePipe(event){
+    var key = event.keyCode;
+    if(key == 38){ 
+        blueSpeedx += 0.5; 
+        supermario.shot[supermario.j].xdir = blueSpeedx;
     }
     
-    if(tecla == 40){ 
-        blueSpeedx -= 0.2;
-        jugador.tiro[jugador.j].xdir  = blueSpeedx;
+    if(key == 40){ 
+        blueSpeedx -= 0.5;
+        supermario.shot[supermario.j].xdir  = blueSpeedx;
     }
     
-    if(tecla == 37){ 
-        jugador.dir = -movementSpeed; 
+    if(key == 37){ 
+        supermario.dir = -movementSpeed; 
     }
     
-    if(tecla == 39){ 
-        jugador.dir = movementSpeed; 
+    if(key == 39){ 
+        supermario.dir = movementSpeed; 
     }
-    if(tecla == 32){
-        jugador.disparo(); 
+    if(key == 32){
+        supermario.pipeShell(); 
     }
 }
 
-function pararTanque(event){
-    var tecla = event.keyCode;
-    if(tecla == 37 || tecla == 39){ 
-        jugador.dir = 0; 
+function stopPipe(event){
+    var key = event.keyCode;
+    if(key == 37 || key == 39){ 
+        supermario.dir = 0; 
     }
 }
 
 //funciones de control
 function draw(){ 
     ctx.clearRect(0,0,canvas.width, canvas.height); 
-    jugador.draw();
-    jugador.pv.punto = Lives;
+    supermario.draw();
+    supermario.pv.point = Lives;
     for(var i=0;i<100;i++){
         waluigi[i].draw();
         wario[i].draw();
@@ -339,23 +353,23 @@ function frame(){
     }
     
     else{ 
-        jugador.move();
+        supermario.move();
         for(var i=0;i<100;i++){
             waluigi[i].move();
             wario[i].move();
         }
         draw();
-        choque();
+        colision();
     }
     
     bucle = requestAnimationFrame(frame);
 }
 
-function pausar(){ 
+function pause(){ 
     game = true; 
 }
 
-function continuar(){ 
+function play(){ 
     game = false; 
 }
 
@@ -375,21 +389,21 @@ function start(){
 }
 
 function audioHit(){
-    audio.src = "waluigi.mp3";
+    audio.src = "animation/waluigi.mp3";
     audio.play();
 }
 
 function audioDead(){
-    audio.src = "mariodead.mp3";
+    audio.src = "animation/mariodead.mp3";
     audio.play();
 }
 
 function audioWario(){
-    audio.src = "wario.mp3";
+    audio.src = "animation/wario.mp3";
     audio.play();
 }
+
 var imageRepository = new function() {
-    
     // Define images
     this.pipe = new Image();
     this.wario = new Image();
@@ -398,7 +412,6 @@ var imageRepository = new function() {
     this.red = new Image();
     this.green = new Image();
     this.explo = new Image();
-
     // Ensure all images have loaded before starting the game
     var numImages = 7;
     var numLoaded = 0;
@@ -408,11 +421,10 @@ var imageRepository = new function() {
             window.init();
         }
     }
-
     //function onload
     this.pipe.onload = function() {
-        var w = jugador.width ;
-        var h = jugador.height ;
+        var w = supermario.width ;
+        var h = supermario.height ;
         imageLoaded();
     }
 
@@ -426,8 +438,8 @@ var imageRepository = new function() {
         imageLoaded();
     }
     this.blue.onload = function(){
-        var w = jugador.width;
-        var h = jugador.height;
+        var w = supermario.width;
+        var h = supermario.height;
     }
     this.wario.onload = function() {
         var w = wario.width;
@@ -436,23 +448,22 @@ var imageRepository = new function() {
     }
 
     this.red.onload = function(){
-        var w = jugador.width;
-        var h = jugador.height;
+        var w = supermario.width;
+        var h = supermario.height;
         imageLoaded();
     }
 
     this.green.onload = function(){
-        var w = jugador.width;
-        var h = jugador.height;
+        var w = supermario.width;
+        var h = supermario.height;
         imageLoaded();
     }
-
     // Set images src
-    this.waluigi.src = "mario.png";
-    this.pipe.src = "bueno.png";
-    this.blue.src = "blue.png"
-    this.wario.src = "wario.png";
-    this.red.src = "red.png";
-    this.green.src = "green.png";
-    this.explo.src = "explosion.png";
+    this.waluigi.src = "images/mario.png";
+    this.pipe.src = "images/bueno.png";
+    this.blue.src = "images/blue.png"
+    this.wario.src = "images/wario.png";
+    this.red.src = "images/red.png";
+    this.green.src = "images/green.png";
+    this.explo.src = "images/explosion.png";
 }

@@ -52,7 +52,7 @@ class Invaders {
         this.shellReady = true;
         this.life = true;
         this.shell = new Shell();
-        this.x = 0 - invadersHeight * Math.random() * 1000;
+        this.x = 0 - invadersHeight * Math.random() * 3000;
         this.w = 30;
         this.h = 30;
         do{
@@ -296,10 +296,6 @@ function colision(){
                 audioDead();
                 musica.pause();
                 }
-
-            if(supermario.pv.point == 150){
-
-            }
         }
     }
 }
@@ -325,6 +321,7 @@ function movePipe(event){
         supermario.dir = movementSpeed; 
     }
     if(key == 32){
+        audioPipe();
         supermario.pipeShell(); 
     }
 }
@@ -379,6 +376,7 @@ function restart(){
 }
 
 function start(){ 
+    audioStart();
     var modal = document.getElementById("modal"); 
     modal.style.display = "none";
     for(var i=0;i<100;i++){
@@ -393,6 +391,16 @@ function audioHit(){
     audio.play();
 }
 
+function audioStart(){
+    audio.src = "effects/itsmario.mp3";
+    audio.play();
+}
+
+function audioPipe(){
+    audio.src = "effects/yoshi.mp3";
+    audio.play();
+}
+
 function audioDead(){
     audio.src = "effects/mariodead.mp3";
     audio.play();
@@ -400,6 +408,16 @@ function audioDead(){
 
 function audioWario(){
     audio.src = "effects/wario.mp3";
+    audio.play();
+}
+
+function audio150pts(){
+    audio.src = "effects/100pts.mp3";
+    audio.play();
+}
+
+function audio300pts(){
+    audio.src = "effects/300pts.mp3";
     audio.play();
 }
 

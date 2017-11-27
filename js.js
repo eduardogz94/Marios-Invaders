@@ -15,6 +15,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var puntos = 0;
 var superficie = canvas.height - alturaTanque;
+var audio = new Audio();
 
 class Base {
     choque(obj){
@@ -118,7 +119,8 @@ class Waluigi {
     }
 
     dead(){
-    ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h);   
+    ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h); 
+    audioHit();  
     }
 }
  
@@ -187,6 +189,7 @@ class Wario {
     }
 
     dead(){
+    audioWario();
     ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h);   
     }
 }
@@ -365,10 +368,16 @@ var wario = [];
 function choque(){
     for(var i=0;i<100;i++){
         for(var j=0;j<100;j++){
-            if(jugador.tiro[i].choque(waluigi[j]) || jugador.tiro[i].choque(wario[j]) ){
-                wario[j].dead();
+            if(jugador.tiro[i].choque(waluigi[j])){
                 waluigi[j].dead();
                 waluigi[j].restart();
+                jugador.tiro[i].restart();
+                puntos++;
+                jugador.p.punto = puntos;
+            }
+
+            if(jugador.tiro[i].choque(wario[j])){
+                wario[j].dead();
                 wario[j].restart();
                 jugador.tiro[i].restart();
                 puntos++;
@@ -382,8 +391,7 @@ function choque(){
             }
             
             if(jugador.pv.punto == 0){
-                var music = document.getElementById("musica");
-
+                audioDead();
                 asd = true;
                 }
         }
@@ -412,7 +420,6 @@ function moverTanque(event){
     }
     if(tecla == 32){
         jugador.disparo(); 
-        audio();
     }
 }
 
@@ -474,12 +481,20 @@ function iniciar(){
     frame(); 
 }
 
-function audio(){
-var audio = new Audio();
-audio.src = "mariocoin.mp3";
+function audioHit(){
+audio.src = "waluigi.mp3";
 audio.play();
 }
 
+function audioDead(){
+    audio.src = "mariodead.mp3";
+    audio.play();
+}
+
+function audioWario(){
+    audio.src = "wario.mp3";
+    audio.play();
+}
 var imageRepository = new function() {
     
     // Define images

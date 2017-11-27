@@ -56,11 +56,11 @@ class Cannon {
     }
 }
 
-class Waluigi {
+class Invaders {
     constructor(x){
         this.bom = true;
         this.life = true;
-        this.bomba = new enemyT();
+        this.bomba = new Green();
         this.x = 0 - largoAvion * Math.random() * 1000;
         this.w = 30;
         this.h = 30;
@@ -70,13 +70,6 @@ class Waluigi {
         }while(this.y < 35)
         this.xdir = velocidadAvion * Math.random() + 0.1;
         
-    }
-    
-    dibujar(){ 
-        ctx.save();
-        ctx.drawImage(imageRepository.enemy, this.x , this.y, this.w, this.h);
-        ctx.restore();
-        this.bomba.dibujar();
     }
     
     mover(){ 
@@ -115,34 +108,27 @@ class Waluigi {
     
     restart(){
         this.x = 0 - largoAvion * Math.random() * 100;
-        //this.y = Math.random()  * 100;
         this.bom = true;
+    }
+}
+
+class Waluigi extends Invaders {
+    dibujar(){ 
+        ctx.save();
+        ctx.drawImage(imageRepository.enemy, this.x , this.y, this.w, this.h);
+        ctx.restore();
+        this.bomba.dibujar();
     }
 
     dead(){
-    ctx.save();
-    ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h); 
-    ctx.restore();
-    audioHit();  
+        ctx.save();
+        ctx.drawImage(imageRepository.explo, this.x , this.y, this.w, this.h); 
+        ctx.restore();
+        audioHit();  
     }
+
 }
- 
-class Wario {
-    constructor(x){
-        this.bom = true;
-        this.life = true;
-        this.bomba = new enemyB();
-        this.x = 0 - largoAvion * Math.random() * 1000;
-        this.w = 30;
-        this.h = 30;
-        //this.y = Math.random() * 100 + 50;
-        do{
-            this.y = Math.random() * 200;
-        }while(this.y < 35)
-        this.xdir = velocidadAvion * Math.random() + 0.1;
-        
-    }
-    
+class Wario extends Invaders {
     dibujar(){ 
         ctx.save();
         ctx.drawImage(imageRepository.sprite, this.x , this.y, this.w, this.h);
@@ -150,47 +136,6 @@ class Wario {
         this.bomba.dibujar();
     }
     
-
-    mover(){ 
-        this.x += this.xdir; 
-        this.derecha = this.w + this.x; 
-        this.fondo = this.h + this.y;
-        if(this.x > canvas.width){
-            this.restart();
-            vidaTanque--;
-        }
-        
-        this.bombardeo();
-        this.bomba.mover();
-    }
-    
-    bombardeo(){
-        if(this.x < canvas.width && this.x > 0 && Math.random() < probTiro && this.bom){
-            this.bomba.x = this.x;
-            this.bomba.y = this.y;
-            this.bomba.ydir = VelocidadBomba;
-            if (Math.random() < 0.3){
-                this.bomba.xdir = 10;    
-            }
-            
-            else if (Math.random() < 0.6){
-                this.bomba.xdir =0;
-            }
-            
-            else if (Math.random() < 0.9){
-                this.bomba.xdir = 10;    
-            }
-            
-            this.bom = false;
-        }
-    }
-    
-    restart(){
-        this.x = 0 - largoAvion * Math.random() * 100;
-        //this.y = Math.random()  * 100;
-        this.bom = true;
-    }
-
     dead(){
         audioWario();
         ctx.save;
@@ -221,7 +166,7 @@ class Tanque {
 
 }
 
-class Bala extends Base {
+class Shell extends Base {
     constructor(){
         super();
         this.t = 5;
@@ -237,10 +182,6 @@ class Bala extends Base {
         this.fondo = this.y+this.t;
         this.derecha = this.x+this.t;
     }
-    
-    dibujar(){ 
-        ctx.drawImage(imageRepository.bullet,this.x - 10, this.y - 20, 20, 30);
-        }
     
     restart(){
         this.x = canvas.width * 1;
@@ -250,62 +191,22 @@ class Bala extends Base {
     }
 }
 
-class enemyB extends Base {
-    constructor(){
-        super();
-        this.t = 5;
-        this.x = canvas.width * 2;
-        this.y = canvas.height * 2;
-        this.xdir = 0;
-        this.ydir = 0;
-    }
-    
-    mover(){
-        this.x+=this.xdir;
-        this.y+=this.ydir;
-        this.fondo = this.y+this.t;
-        this.derecha = this.x+this.t;
-    }
-    
+class Red extends Shell {
     dibujar(){ 
         ctx.drawImage(imageRepository.red,this.x - 10, this.y - 20, 20, 30);
-        }
-    
-    restart(){
-        this.x = canvas.width * 1;
-        this.y = canvas.height * 1;
-        this.xdir = 0;
-        this.ydir = 0;
-    }
+     }
 }
 
-class enemyT extends Base {
-    constructor(){
-        super();
-        this.t = 5;
-        this.x = canvas.width * 2;
-        this.y = canvas.height * 2;
-        this.xdir = 0;
-        this.ydir = 0;
-    }
-    
-    mover(){
-        this.x+=this.xdir;
-        this.y+=this.ydir;
-        this.fondo = this.y+this.t;
-        this.derecha = this.x+this.t;
-    }
-    
+class Green extends Shell {
     dibujar(){ 
         ctx.drawImage(imageRepository.green,this.x - 10, this.y - 20, 20, 30);
-        }
-    
-    restart(){
-        this.x = canvas.width * 1;
-        this.y = canvas.height * 1;
-        this.xdir = 0;
-        this.ydir = 0;
-    }
+     }
+}
+
+class Blue extends Shell {
+    dibujar(){ 
+        ctx.drawImage(imageRepository.bullet,this.x - 10, this.y - 20, 20, 30);
+      }
 }
 
 class Player extends Base {
@@ -320,7 +221,7 @@ class Player extends Base {
         this.pv.punto = vidaTanque;
         this.c = new Cannon(this.t.x + 25,this.t.y - 46);
         for(var i=0;i<100;i++){
-            this.tiro[i] = new Bala();
+            this.tiro[i] = new Blue();
         }
     }
     
@@ -489,8 +390,8 @@ function iniciar(){
 }
 
 function audioHit(){
-audio.src = "waluigi.mp3";
-audio.play();
+    audio.src = "waluigi.mp3";
+    audio.play();
 }
 
 function audioDead(){

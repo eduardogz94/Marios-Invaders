@@ -1,23 +1,26 @@
+// game variables
 var bucle;
-var asd = false;
-var vidaTanque = 100;
-var velocidadTanque = 4;
-var alturaTanque = 10
-var largoTanque = 50;
-var velocidadBalay = -5;
-var velocidadBalax = 0;
-var VelocidadBomba = 5;
-var largoAvion = 10;
-var alturaAvion = 5;
-var velocidadAvion = 5;
-var probTiro = 0.01;
+var game = false;
+var Lives = 100;
+//sprites variables
+var movementSpeed = 4;
+var pipeHeight = 10
+var pipeWidth = 50;
+var blueSpeedy = -5;
+var blueSpeedx = 0;
+var shellSpeed = 5;
+var invadersHeight = 10;
+var invadersSpeed = 5;
+var shellChance = 0.01;
+//global variables
 var canvas = document.getElementById("canvas");
 var music = document.getElementById("musica");
 var ctx = canvas.getContext("2d");
-var puntos = 0;
-var superficie = canvas.height - alturaTanque;
+var points = 0;
+var surface = canvas.height - pipeHeight; //superficie
 var audio = new Audio();
 
+//base classes
 class Base {
     choque(obj){
         if(this.fondo < obj.y || this.y > obj.fondo || this.derecha < obj.x || this.x > obj.derecha){ 
@@ -30,72 +33,59 @@ class Base {
     }
 }
 
-class Puntos {
+class Points {
     constructor(x){ 
         this.x = x; 
         this.y = 25; 
         this.punto = 0; 
     }
     
-    dibujar(){ 
+    draw(){ 
         ctx.font = "25px Arial"; 
         ctx.fillText(this.punto.toString(), this.x, this.y); 
     }
 }
 
-class Cannon {
-    constructor(x,y){
-        this.x = x;
-        this.w = 1;
-        this.h = -20;
-        this.y = y;
-    }
-    
-    mover(dir){ 
-        this.x += dir; 
-    }
-}
-
+//sprites clases
 class Invaders {
     constructor(x){
         this.bom = true;
         this.life = true;
         this.bomba = new Green();
-        this.x = 0 - largoAvion * Math.random() * 1000;
+        this.x = 0 - invadersHeight * Math.random() * 1000;
         this.w = 30;
         this.h = 30;
-        //this.y = Math.random() * 100 + 50;
         do{
             this.y = Math.random() * 200;
         }while(this.y < 35)
-        this.xdir = velocidadAvion * Math.random() + 0.1;
+        this.xdir = invadersSpeed * Math.random() + 0.1;
         
     }
     
-    mover(){ 
+    move(){ 
         this.x += this.xdir; 
         this.derecha = this.w + this.x; 
         this.fondo = this.h + this.y;
         if(this.x > canvas.width){
             this.restart();
-            vidaTanque--;
+            Lives--;
         }
         
         this.bombardeo();
-        this.bomba.mover();
+        this.bomba.move();
     }
     
     bombardeo(){
-        if(this.x < canvas.width && this.x > 0 && Math.random() < probTiro && this.bom){
+        if(this.x < canvas.width && this.x > 0 && Math.random() < shellChance && this.bom){
             this.bomba.x = this.x;
             this.bomba.y = this.y;
-            this.bomba.ydir = VelocidadBomba;
+            this.bomba.ydir = shellSpeed;
             if (Math.random() < 0.3){
                 this.bomba.xdir = Math.random() * 5;    
             }
             
             else if (Math.random() < 0.6){
-                this.bomba.xdir =0;
+                this.bomba.xdir = 0;
             }
             
             else if (Math.random() < 0.9){
@@ -107,17 +97,17 @@ class Invaders {
     }
     
     restart(){
-        this.x = 0 - largoAvion * Math.random() * 100;
+        this.x = 0 - invadersHeight * Math.random() * 100;
         this.bom = true;
     }
 }
 
 class Waluigi extends Invaders {
-    dibujar(){ 
+    draw(){ 
         ctx.save();
-        ctx.drawImage(imageRepository.enemy, this.x , this.y, this.w, this.h);
+        ctx.drawImage(imageRepository.waluigi, this.x , this.y, this.w, this.h);
         ctx.restore();
-        this.bomba.dibujar();
+        this.bomba.draw();
     }
 
     dead(){
@@ -129,11 +119,11 @@ class Waluigi extends Invaders {
 
 }
 class Wario extends Invaders {
-    dibujar(){ 
+    draw(){ 
         ctx.save();
-        ctx.drawImage(imageRepository.sprite, this.x , this.y, this.w, this.h);
+        ctx.drawImage(imageRepository.wario, this.x , this.y, this.w, this.h);
         ctx.restore();
-        this.bomba.dibujar();
+        this.bomba.draw();
     }
     
     dead(){
@@ -143,29 +133,7 @@ class Wario extends Invaders {
         ctx.restore();
     }
 }
-
-class Tanque {
-    constructor(){
-        this.x = (canvas.width - largoTanque) / 2;
-        this.w = largoTanque;
-        this.h = alturaTanque;
-        this.y = superficie - 5;
-    }
-    
-    dibujar(){         
-            ctx.save();
-            ctx.drawImage(imageRepository.spaceship,this.x , superficie - 50, 50,60);
-            ctx.restore();
-        }
-    
-    mover(dir){ 
-        this.x += dir; 
-        this.derecha = this.w + this.x; 
-        this.fondo = this.h + this.y;
-    }
-
-}
-
+//shell class
 class Shell extends Base {
     constructor(){
         super();
@@ -176,7 +144,7 @@ class Shell extends Base {
         this.ydir = 0;
     }
     
-    mover(){
+    move(){
         this.x+=this.xdir;
         this.y+=this.ydir;
         this.fondo = this.y+this.t;
@@ -192,21 +160,42 @@ class Shell extends Base {
 }
 
 class Red extends Shell {
-    dibujar(){ 
+    draw(){ 
         ctx.drawImage(imageRepository.red,this.x - 10, this.y - 20, 20, 30);
      }
 }
 
 class Green extends Shell {
-    dibujar(){ 
+    draw(){ 
         ctx.drawImage(imageRepository.green,this.x - 10, this.y - 20, 20, 30);
      }
 }
 
 class Blue extends Shell {
-    dibujar(){ 
-        ctx.drawImage(imageRepository.bullet,this.x - 10, this.y - 20, 20, 30);
+    draw(){ 
+        ctx.drawImage(imageRepository.blue,this.x - 10, this.y - 20, 20, 30);
       }
+}
+//pipe class
+class Cannon {
+    constructor(x,y){
+        this.x = x;
+        this.w = pipeWidth;
+        this.h = pipeHeight;
+        this.y = surface - 5;
+    }
+    
+    draw(){         
+        ctx.save();
+        ctx.drawImage(imageRepository.pipe,this.x , surface - 50, 50,60);
+        ctx.restore();
+ }
+
+    mover(dir){ 
+        this.x += dir; 
+        this.derecha = this.w + this.x; 
+        this.fondo = this.h + this.y;
+    }
 }
 
 class Player extends Base {
@@ -214,12 +203,11 @@ class Player extends Base {
         super();
         this.j = 0;
         this.tiro = [];
-        this.dir = 0;
-        this.t = new Tanque();  
-        this.p = new Puntos(25); 
-        this.pv = new Puntos(canvas.width - 75);
-        this.pv.punto = vidaTanque;
-        this.c = new Cannon(this.t.x + 25,this.t.y - 46);
+        this.dir = 0; 
+        this.p = new Points(25); 
+        this.pv = new Points(canvas.width - 75);
+        this.pv.punto = Lives;
+        this.c = new Cannon(450,360);
         for(var i=0;i<100;i++){
             this.tiro[i] = new Blue();
         }
@@ -232,35 +220,32 @@ class Player extends Base {
            
         this.tiro[this.j].x = this.c.x;
         this.tiro[this.j].y = this.c.y;
-        this.tiro[this.j].ydir = velocidadBalay;
-        this.tiro[this.j].xdir = velocidadBalax;
+        this.tiro[this.j].ydir = blueSpeedy;
+        this.tiro[this.j].xdir = blueSpeedx;
         this.j++;
     }
     
-    mover(){
-        this.t.mover(this.dir);
+    move(){
         this.c.mover(this.dir);
         for(var i=0;i<100;i++){
-            this.tiro[i].mover();
+            this.tiro[i].move();
         }
         
-        if(this.t.x <= 0){
-            this.t.x = 0;
-            this.c.x = this.t.x + largoTanque / 2;
+        if(this.c.x <= 0){
+            this.c.x = 0;
         }
         
-        if(this.t.x >= canvas.width - largoTanque){ 
-            this.t.x = canvas.width - largoTanque;
-            this.c.x = this.t.x + largoTanque / 2;
+        if(this.c.x >= canvas.width - pipeWidth){ 
+            this.c.x = canvas.width - pipeWidth;
         }
     }
     
-    dibujar(){ 
-        this.p.dibujar();
-        this.pv.dibujar();
-        this.t.dibujar();
+    draw(){ 
+        this.p.draw();
+        this.pv.draw();
+        this.c.draw();
         for(var i=0;i<100;i++){
-            this.tiro[i].dibujar();
+            this.tiro[i].draw();
         }
     }
 
@@ -278,26 +263,26 @@ function choque(){
                 waluigi[j].dead();
                 waluigi[j].restart();
                 jugador.tiro[i].restart();
-                puntos++;
-                jugador.p.punto = puntos;
+                points++;
+                jugador.p.punto = points;
             }
 
             if(jugador.tiro[i].choque(wario[j])){
                 wario[j].dead();
                 wario[j].restart();
                 jugador.tiro[i].restart();
-                puntos++;
-                jugador.p.punto = puntos;
+                points++;
+                jugador.p.punto = points;
             }
             
-            if(waluigi[i].bomba.choque(jugador.t) || wario[i].bomba.choque(jugador.t) ){
-                vidaTanque--;
+            if(waluigi[i].bomba.choque(jugador.c) || wario[i].bomba.choque(jugador.c) ){
+                Lives--;
                 waluigi[i].bomba.restart();
                 wario[i].bomba.restart();
             }
             
             if(jugador.pv.punto == 0){
-                asd = true;
+                game = true;
                 audioDead();
                 musica.pause();
                 }
@@ -309,21 +294,21 @@ function choque(){
 function moverTanque(event){
     var tecla = event.keyCode;
     if(tecla == 38){ 
-        velocidadBalax += 0.2; 
-        jugador.tiro[jugador.j].xdir = velocidadBalax;
+        blueSpeedx += 0.2; 
+        jugador.tiro[jugador.j].xdir = blueSpeedx;
     }
     
     if(tecla == 40){ 
-        velocidadBalax -= 0.2;
-        jugador.tiro[jugador.j].xdir  = velocidadBalax;
+        blueSpeedx -= 0.2;
+        jugador.tiro[jugador.j].xdir  = blueSpeedx;
     }
     
     if(tecla == 37){ 
-        jugador.dir = -velocidadTanque; 
+        jugador.dir = -movementSpeed; 
     }
     
     if(tecla == 39){ 
-        jugador.dir = velocidadTanque; 
+        jugador.dir = movementSpeed; 
     }
     if(tecla == 32){
         jugador.disparo(); 
@@ -338,28 +323,28 @@ function pararTanque(event){
 }
 
 //funciones de control
-function dibujar(){ 
+function draw(){ 
     ctx.clearRect(0,0,canvas.width, canvas.height); 
-    jugador.dibujar();
-    jugador.pv.punto = vidaTanque;
+    jugador.draw();
+    jugador.pv.punto = Lives;
     for(var i=0;i<100;i++){
-        waluigi[i].dibujar();
-        wario[i].dibujar();
+        waluigi[i].draw();
+        wario[i].draw();
     }
 }
 
 function frame(){ 
-    if(asd){ 
-        dibujar(); 
+    if(game){ 
+        draw(); 
     }
     
     else{ 
-        jugador.mover();
+        jugador.move();
         for(var i=0;i<100;i++){
-            waluigi[i].mover();
-            wario[i].mover();
+            waluigi[i].move();
+            wario[i].move();
         }
-        dibujar();
+        draw();
         choque();
     }
     
@@ -367,19 +352,19 @@ function frame(){
 }
 
 function pausar(){ 
-    asd = true; 
+    game = true; 
 }
 
 function continuar(){ 
-    asd = false; 
+    game = false; 
 }
 
-function reiniciar(){
+function restart(){
     location.reload();
-    iniciar();
+    start();
 }
 
-function iniciar(){ 
+function start(){ 
     var modal = document.getElementById("modal"); 
     modal.style.display = "none";
     for(var i=0;i<100;i++){
@@ -406,10 +391,10 @@ function audioWario(){
 var imageRepository = new function() {
     
     // Define images
-    this.spaceship = new Image();
-    this.sprite = new Image();
-    this.enemy = new Image();
-    this.bullet = new Image();
+    this.pipe = new Image();
+    this.wario = new Image();
+    this.waluigi = new Image();
+    this.blue = new Image();
     this.red = new Image();
     this.green = new Image();
     this.explo = new Image();
@@ -425,7 +410,7 @@ var imageRepository = new function() {
     }
 
     //function onload
-    this.spaceship.onload = function() {
+    this.pipe.onload = function() {
         var w = jugador.width ;
         var h = jugador.height ;
         imageLoaded();
@@ -435,16 +420,16 @@ var imageRepository = new function() {
         imageLoaded();
     }
 
-    this.enemy.onload = function() {
+    this.waluigi.onload = function() {
         var w = waluigi.width;
         var h = waluigi.height;
         imageLoaded();
     }
-    this.bullet.onload = function(){
+    this.blue.onload = function(){
         var w = jugador.width;
         var h = jugador.height;
     }
-    this.sprite.onload = function() {
+    this.wario.onload = function() {
         var w = wario.width;
         var h = wario.height;
         imageLoaded();
@@ -463,10 +448,10 @@ var imageRepository = new function() {
     }
 
     // Set images src
-    this.enemy.src = "mario.png";
-    this.spaceship.src = "bueno.png";
-    this.bullet.src = "bullet.png"
-    this.sprite.src = "wario.png";
+    this.waluigi.src = "mario.png";
+    this.pipe.src = "bueno.png";
+    this.blue.src = "blue.png"
+    this.wario.src = "wario.png";
     this.red.src = "red.png";
     this.green.src = "green.png";
     this.explo.src = "explosion.png";

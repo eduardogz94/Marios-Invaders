@@ -15,6 +15,7 @@ var shellChance = 0.01;
 //global variables
 var canvas = document.getElementById("canvas");
 var music = document.getElementById("musica");
+var modal = document.getElementById("modal"); 
 var ctx = canvas.getContext("2d");
 var points = 0;
 var surface = canvas.height - pipeHeight; //superficie
@@ -52,7 +53,7 @@ class Invaders {
         this.shellReady = true;
         this.life = true;
         this.shell = new Shell();
-        this.x = 0 - invadersHeight * Math.random() * 3000;
+        this.x = 0 - invadersHeight * Math.random() * 2800;
         this.w = 30;
         this.h = 30;
         do{
@@ -123,6 +124,27 @@ class Waluigi extends Invaders {
     }
 
 }
+
+class Gomba extends Invaders{
+    constructor(){
+        super();
+        this.shell = new Blue();
+    }
+
+    draw(){
+        ctx.save();
+        ctx.drawImage(imageRepository.gom, this.x, this.y, 25, 25);
+        ctx.restore();
+        this.shell.draw();
+    }
+
+    dead(){
+        ctx.save();
+        ctx.drawImage(imageRepository.explo, this.x, this.y, this.w, this.h);
+        ctx.restore(); 
+    }
+}
+
 class Wario extends Invaders {
     constructor(){
         super();
@@ -183,8 +205,14 @@ class Green extends Shell {
 
 class Blue extends Shell {
     draw(){ 
-        ctx.drawImage(imageRepository.blue,this.x - 2, this.y - 32, 15, 25);
+        ctx.drawImage(imageRepository.blue,this.x, this.y, 15, 25);
       }
+}
+
+class Bullet extends Shell {
+    draw(){
+        ctx.drawImage(imageRepository.bullet, this.x-2, this.y-32, 15, 25);
+    }
 }
 //pipe class
 class Cannon {
@@ -219,7 +247,7 @@ class Player extends Base {
         this.pv.point = Lives;
         this.c = new Cannon(450,360);
         for(var i=0;i<100;i++){
-            this.shot[i] = new Blue();
+            this.shot[i] = new Bullet();
         }
     }
     
@@ -264,6 +292,7 @@ class Player extends Base {
 var supermario = new Player();
 var waluigi = [];
 var wario = [];
+var gomba = [];
 
 //funciones de evento/movimientos
 function colision(){
@@ -284,11 +313,20 @@ function colision(){
                 points++;
                 supermario.p.point = points;
             }
+
+            if(supermario.shot[i].colision(gomba[j])){
+                gomba[j].dead();
+                gomba[j].restart();
+                supermario.shot[i].restart();
+                points++;
+                supermario.p.point = points;
+            }
             
-            if(waluigi[i].shell.colision(supermario.c) || wario[i].shell.colision(supermario.c) ){
+            if(waluigi[i].shell.colision(supermario.c) || wario[i].shell.colision(supermario.c) || gomba[i].shell.colision(supermario.c) ){
                 Lives--;
                 waluigi[i].shell.restart();
                 wario[i].shell.restart();
+                gomba[i].shell.restart();
             }
             
             if(supermario.pv.point == 0){
@@ -304,12 +342,12 @@ function colision(){
 function movePipe(event){
     var key = event.keyCode;
     if(key == 38){ 
-        blueSpeedx += 0.5; 
+        blueSpeedx += 0.8; 
         supermario.shot[supermario.j].xdir = blueSpeedx;
     }
     
     if(key == 40){ 
-        blueSpeedx -= 0.5;
+        blueSpeedx -= 0.8;
         supermario.shot[supermario.j].xdir  = blueSpeedx;
     }
     
@@ -341,6 +379,7 @@ function draw(){
     for(var i=0;i<100;i++){
         waluigi[i].draw();
         wario[i].draw();
+        gomba[i].draw();
     }
 }
 
@@ -348,26 +387,27 @@ function frame(){
     if(game){ 
         draw(); 
     }
-    
     else{ 
         supermario.move();
         for(var i=0;i<100;i++){
             waluigi[i].move();
             wario[i].move();
+            gomba[i].move();
         }
         draw();
         colision();
     }
-    
     bucle = requestAnimationFrame(frame);
 }
 
 function pause(){ 
     game = true; 
+    musica.pause();
 }
 
 function play(){ 
     game = false; 
+    musica.play();
 }
 
 function restart(){
@@ -377,15 +417,16 @@ function restart(){
 
 function start(){ 
     audioStart();
-    var modal = document.getElementById("modal"); 
     modal.style.display = "none";
     for(var i=0;i<100;i++){
         waluigi[i] = new Waluigi();
         wario[i] = new Wario();
+        gomba[i] = new Gomba();
     }
     frame(); 
 }
 
+//audio control
 function audioHit(){
     audio.src = "effects/waluigi.mp3";
     audio.play();
@@ -430,8 +471,10 @@ var imageRepository = new function() {
     this.red = new Image();
     this.green = new Image();
     this.explo = new Image();
+    this.gom = new Image();
+    this.bullet = new Image();
     // Ensure all images have loaded before starting the game
-    var numImages = 7;
+    var numImages = 9;
     var numLoaded = 0;
     function imageLoaded() {
         numLoaded++;
@@ -446,6 +489,10 @@ var imageRepository = new function() {
         imageLoaded();
     }
 
+    this.bullet.onload = function(){
+        imageLoaded();
+    }
+
     this.explo.onload = function(){
         imageLoaded();
     }
@@ -455,10 +502,11 @@ var imageRepository = new function() {
         var h = waluigi.height;
         imageLoaded();
     }
+
     this.blue.onload = function(){
-        var w = supermario.width;
-        var h = supermario.height;
+        imageLoaded();
     }
+
     this.wario.onload = function() {
         var w = wario.width;
         var h = wario.height;
@@ -466,17 +514,20 @@ var imageRepository = new function() {
     }
 
     this.red.onload = function(){
-        var w = supermario.width;
-        var h = supermario.height;
         imageLoaded();
     }
 
     this.green.onload = function(){
-        var w = supermario.width;
-        var h = supermario.height;
+        imageLoaded();
+    }
+
+    this.gom.onload = function(){
+        var w = gomba.width;
+        var h = gomba.height;
         imageLoaded();
     }
     // Set images src
+    this.gom.src = "images/gomba.png";
     this.waluigi.src = "images/mario.png";
     this.pipe.src = "images/bueno.png";
     this.blue.src = "images/blue.png"
@@ -484,4 +535,5 @@ var imageRepository = new function() {
     this.red.src = "images/red.png";
     this.green.src = "images/green.png";
     this.explo.src = "images/explosion.png";
+    this.bullet.src = "images/bullet.png";
 }
